@@ -19,14 +19,20 @@ class grbEntity(object):
                if row[0] in UIDNs: cursor.deleteRow()
 
     def insertFeaturesFromFC(self, updateFC ):
-        "insert features in grbEntity from feature class updateFC"
+        "insert features in grbEntity from feature class updateFC, if field with UIDN not exists"
         ##TODO: replace with append?
         #find all fields that are present in both files
         fields = [n for n in self.listFields(updateFC) if n in self.fields ]
+        
+        #make sure UIDN is the first value
+        fields.remove("UIDN")
+        fields = ["UIDN"] + fields
 
         with arcpy.da.InsertCursor(self.fc, fields) as cursor:
            for row in arcpy.da.SearchCursor(updateFC, fields):
-              cursor.insertRow(row)
+              qry = '"UIDN" = ' + str( int( row[0] )) 
+              duplicates= len([r for r in arcpy.da.SearchCursor(self.fc,"UIDN",qry)])
+              if duplicates == 0: cursor.insertRow(row)
 
     def updateFeaturesFromFC(self, updateFC):
         "Update the grbEntity with features from updateFC "

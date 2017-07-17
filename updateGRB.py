@@ -25,7 +25,7 @@ def main():
 def updateWorkspace(grbWorkspace, updateDir, prefix="", grbEntities=[]):
    "update all the features with prefix in grbWorspace with all the diff-files form updatedir for entities in list"
    arcpy.env.workspace = grbWorkspace
-   inputEntities = arcpy.ListFeatureClasses( prefix + "*" )
+   inputEntities = [n for n in arcpy.ListFeatureClasses( prefix + "*" ) if not n.endswith("_RVW") ]
 
    #start editsession, so database will roll back on error
    edit = arcpy.da.Editor(grbWorkspace)
